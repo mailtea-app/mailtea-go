@@ -1,0 +1,11 @@
+.env
+
+# Compiled binaries and test artifacts.
+*.exe
+*.test
+*.out
+
+# A local module override used to develop against an unpublished checkout.
+# It points at paths that exist on one machine only.
+go.work
+go.work.sum

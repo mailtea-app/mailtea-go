@@ -1,0 +1,29 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+  # Lets a run be re-triggered from the Actions tab without a new commit.
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          # The SDK's floor is go 1.18 (go.mod); CI runs a current toolchain so
+          # the checks a newer vet performs still get performed.
+          go-version: '1.22'
+      - name: Check formatting
+        run: |
+          unformatted=$(gofmt -l .)
+          if [ -n "$unformatted" ]; then
+            echo "gofmt is needed on:"
+            echo "$unformatted"
+            exit 1
+          fi
+      - run: go vet ./...
+      # No secrets: the tests answer from a bundled httptest mock, so they need
+      # no API key and make no network calls.
+      - run: go test ./...

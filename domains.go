@@ -16,6 +16,9 @@ type DomainsService struct {
 
 	// Tracking covers the CNAME tracking sub-domains under a domain.
 	Tracking *TrackingDomainsService
+
+	// Claims covers taking a domain back from the team that currently holds it.
+	Claims *DomainClaimsService
 }
 
 // Create registers a domain. The response's `records` lists the DNS records to
@@ -47,6 +50,15 @@ func (s *DomainsService) Verify(ctx context.Context, id string, params Params) (
 // custom_return_path delegates a subdomain as the envelope sender so SPF aligns
 // with your own domain. Mail keeps sending on the default return-path until the
 // delegated DNS resolves.
+//
+// tracking_subdomain set to nil removes a tracking subdomain: the domain's
+// links go back to being served from the Mailtea host, and links in mail
+// already sent point at the old hostname and stop resolving. Params reaches
+// the encoder as given, so the nil travels as a JSON null — leaving the key
+// out (leave the subdomain alone) and setting it to nil (remove it) are
+// different requests. An empty string is neither; it is refused with
+// tracking_subdomain_invalid. nil is an update-only value: a create has
+// nothing to clear.
 func (s *DomainsService) Update(ctx context.Context, id string, params Params) (Object, error) {
 	path := "/v1/domains/" + url.PathEscape(id) + query(withPublicationID(params))
 	return s.client.object(ctx, http.MethodPatch, path, bodyOrNil(params))
@@ -91,5 +103,45 @@ func (s *TrackingDomainsService) Verify(ctx context.Context, domainID, trackingD
 func (s *TrackingDomainsService) Delete(ctx context.Context, domainID, trackingDomainID string, params Params) (Object, error) {
 	path := "/v1/domains/" + url.PathEscape(domainID) +
 		"/tracking-domains/" + url.PathEscape(trackingDomainID) + query(params)
+	return s.client.object(ctx, http.MethodDelete, path, nil)
+}
+
+// DomainClaimsService covers domain claims — taking a domain back from
+// whichever publication currently holds it. Reach it as
+// client.Domains.Claims.
+//
+// Use it when Create is refused because the host is connected to another
+// publication: open a claim, publish the TXT record the response lists to prove
+// you control the DNS, then Verify. On success the other team's domain is
+// released and a fresh one is created for you.
+type DomainClaimsService struct {
+	client *Client
+}
+
+// Create opens a claim. Takes publication_id, name, and an optional region.
+// The response's `records` lists the TXT record to publish.
+func (s *DomainClaimsService) Create(ctx context.Context, params Params) (Object, error) {
+	return s.client.object(ctx, http.MethodPost, "/v1/domains/claim", bodyOrNil(params))
+}
+
+// Get polls a claim. Requires publication_id.
+func (s *DomainClaimsService) Get(ctx context.Context, id string, params Params) (Object, error) {
+	path := "/v1/domains/claims/" + url.PathEscape(id) + query(params)
+	return s.client.object(ctx, http.MethodGet, path, nil)
+}
+
+// Verify checks the TXT record and completes the claim if it is there.
+//
+// Safe to call repeatedly: a record that has not propagated yet leaves the
+// claim pending with the same record, so nothing has to be republished. A
+// completed claim answers with the fresh `domain` beside the claim.
+func (s *DomainClaimsService) Verify(ctx context.Context, id string, params Params) (Object, error) {
+	path := "/v1/domains/claims/" + url.PathEscape(id) + "/verify" + query(params)
+	return s.client.object(ctx, http.MethodPost, path, nil)
+}
+
+// Cancel withdraws a pending claim. Requires publication_id.
+func (s *DomainClaimsService) Cancel(ctx context.Context, id string, params Params) (Object, error) {
+	path := "/v1/domains/claims/" + url.PathEscape(id) + query(params)
 	return s.client.object(ctx, http.MethodDelete, path, nil)
 }

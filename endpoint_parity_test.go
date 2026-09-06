@@ -36,6 +36,8 @@ var pythonEndpointPrefixes = []string{
 	"/v1/contacts/",
 	"/v1/domains",
 	"/v1/domains/",
+	"/v1/domains/claim",
+	"/v1/domains/claims/",
 	"/v1/emails",
 	"/v1/emails/",
 	"/v1/emails/analytics",
@@ -78,8 +80,8 @@ func TestEndpointParityWithThePythonSDK(t *testing.T) {
 		t.Errorf("this SDK reaches no endpoint for:\n  %s", strings.Join(missing, "\n  "))
 	}
 
-	if len(pythonEndpointPrefixes) != 35 {
-		t.Errorf("the reference list has %d entries, want the 35 the Python SDK reaches", len(pythonEndpointPrefixes))
+	if len(pythonEndpointPrefixes) != 37 {
+		t.Errorf("the reference list has %d entries, want the 37 the Python SDK reaches", len(pythonEndpointPrefixes))
 	}
 }
 

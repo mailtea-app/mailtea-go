@@ -7,4 +7,4 @@ package mailtea
 // The mirror repo's `v<Version>` git tag IS the Go release — pkg.go.dev
 // indexes the tag, there is no separate registry upload — so this constant and
 // that tag must always agree.
-const Version = "0.1.0"
+const Version = "0.2.0"

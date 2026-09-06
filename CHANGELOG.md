@@ -4,6 +4,30 @@ All notable changes to the `github.com/mailtea-app/mailtea-go` module are
 documented here. The `v<version>` tag on this repository is the release —
 pkg.go.dev indexes the tag — and these sections become its release notes.
 
+## Unreleased
+
+- Added: `Domains.Update` with `tracking_subdomain` set to nil removes a
+  tracking subdomain. The domain's links go back to being served from the
+  Mailtea host. Links in mail you have already sent point at the old hostname
+  and stop resolving — there is no way to reinstate them. Params reaches the
+  encoder as given, so the nil travels as a JSON null; leaving the key out and
+  setting it to nil are different requests. An empty string is neither: it is
+  refused with `tracking_subdomain_invalid`.
+- Changed: the `MX` row in `records` now reports what the last verify found,
+  instead of reading `pending` on every request but the verify itself. A domain
+  nobody has verified reads `not_started`.
+
+## 0.2.0 (2026-09-03)
+
+- Added: the domain claims resource — `client.Domains.Claims.Create`, `.Get`,
+  `.Verify` and `.Cancel`. When adding a domain is refused because the host is
+  connected to another publication, publish one TXT record to prove you control
+  its DNS and the domain moves to you.
+- Documented: domains take `region` (fixed at creation), `tls` and
+  `tracking_subdomain` on create, and the list filters on `region` and `status`.
+  This SDK forwards whatever parameters you pass, so these worked already — this
+  release is where they are stated and covered by tests.
+
 ## 0.1.0 (2026-08-27)
 
 First release. The official Go SDK for Mailtea, ported from the Python SDK

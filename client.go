@@ -141,7 +141,11 @@ func New(apiKey string, opts ...Option) (*Client, error) {
 	client.Assets = &AssetsService{client: client}
 	client.Suppressions = &SuppressionsService{client: client}
 	client.Templates = &TemplatesService{client: client}
-	client.Domains = &DomainsService{client: client, Tracking: &TrackingDomainsService{client: client}}
+	client.Domains = &DomainsService{
+		client:   client,
+		Tracking: &TrackingDomainsService{client: client},
+		Claims:   &DomainClaimsService{client: client},
+	}
 	client.Webhooks = &WebhooksService{client: client}
 	client.ContactProperties = &ContactPropertiesService{client: client}
 	client.APIKeys = &APIKeysService{client: client}

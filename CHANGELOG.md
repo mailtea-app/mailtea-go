@@ -4,7 +4,7 @@ All notable changes to the `github.com/mailtea-app/mailtea-go` module are
 documented here. The `v<version>` tag on this repository is the release —
 pkg.go.dev indexes the tag — and these sections become its release notes.
 
-## Unreleased
+## 0.3.0 (2026-09-10)
 
 - Added: `Domains.Update` with `tracking_subdomain` set to nil removes a
   tracking subdomain. The domain's links go back to being served from the

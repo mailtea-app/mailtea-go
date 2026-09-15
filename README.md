@@ -100,7 +100,7 @@ List endpoints return `*mailtea.List` (`Data []Object`, plus `Total`/`Limit`/
 | `Emails.Send(ctx, req)` **typed** | Send a transactional email → `{ID}` |
 | `Emails.Batch(ctx, reqs)` **typed** | Send up to 100 emails → `{Data: [{ID}]}` |
 | `Emails.Get(ctx, id)` | Retrieve an email and its delivery status (typed `*Email`) |
-| `Emails.List(ctx, params)` | List emails → `*List` |
+| `Emails.List(ctx, params)` | List emails → `*List`. Pass `"mode": "test"` for test-mode mail |
 | `Emails.Update(ctx, id, req)` **typed** | Reschedule a scheduled email |
 | `Emails.Reschedule(ctx, id, scheduledAt)` | Convenience wrapper over `Update` |
 | `Emails.Cancel(ctx, id)` | Cancel a scheduled email (`POST …/cancel`; there is no `DELETE`) |
@@ -129,7 +129,7 @@ List endpoints return `*mailtea.List` (`Data []Object`, plus `Total`/`Limit`/
 | `Domains.Tracking.Create / List / Verify / Delete` | CNAME tracking sub-domains under a domain |
 | `Webhooks.Create / List / Get / Update / Delete` | Manage outbound event subscriptions |
 | `ContactProperties.Create / List / Update / Delete` | Custom contact fields (team-scoped) |
-| `APIKeys.Create / List / Revoke` | Manage API keys (needs `settings:write`) |
+| `APIKeys.Create / List / Revoke` | Manage API keys (needs `settings:write`). `"mode": "test"` mints a test key |
 | `Automations.Create / List / Get / Update / Delete` | Automation graphs (`steps` + optional `connections`) |
 | `Automations.Validate(ctx, params)` | Dry-run a graph → `{valid, issues}` |
 | `Automations.Activate / Pause / Archive` | Lifecycle (`cancel_runs` defaults **false** on pause, **true** on archive) |
@@ -156,6 +156,35 @@ _, err := client.Emails.Send(ctx, mailtea.SendEmailRequest{
 	},
 })
 ```
+
+## Test mode
+
+A test key (`mt_test_…`) sends nothing. Every message it creates is validated,
+recorded and emits webhooks, but is never handed to a provider — so CI can point
+at production Mailtea with your real code and your real webhook handler.
+
+```go
+key, err := client.APIKeys.Create(ctx, mailtea.Params{"name": "CI", "mode": "test"})
+// key["token"] starts with mt_test_
+
+test, err := mailtea.New(key["token"].(string))
+_, err = test.Emails.Send(ctx, mailtea.SendEmailRequest{
+	From:    "you@yourdomain.com",
+	To:      []string{"bounced@test.mailtea.email"},
+	Subject: "Bounce handling",
+	HTML:    "<p>Never delivered.</p>",
+})
+
+list, err := test.Emails.List(ctx, mailtea.Params{"mode": "test"})
+```
+
+Reserved recipients on `test.mailtea.email` force the outcome — `delivered@`,
+`bounced@`, `complained@`, `delayed@`, `failed@` — and the first `To` recipient
+decides. `Email.Mode` reports which mode a row was written in. A test key reads
+only test mail and a live key only live mail; there is no mixed view.
+
+A test key is **not** a data sandbox. It reads and writes your real contacts,
+templates, senders and webhooks. Only delivery is simulated.
 
 ## Webhooks
 

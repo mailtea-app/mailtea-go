@@ -159,6 +159,12 @@ type Email struct {
 	// Status is a friendly alias of LastEvent, filled in by this SDK.
 	Status string `json:"status"`
 
+	// Mode is "live" for real mail, or "test" for a message sent with a test key
+	// (mt_test_...): validated, recorded and webhook-emitting, but never
+	// delivered. A string rather than a typed constant, so a mode added
+	// server-side still decodes.
+	Mode string `json:"mode"`
+
 	// Error is why the send failed, in neutral words — the provider's own
 	// wording is never returned. Empty on every email that has not failed.
 	Error string `json:"error"`

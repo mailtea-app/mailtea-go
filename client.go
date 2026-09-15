@@ -98,7 +98,8 @@ type Client struct {
 
 // New builds a client.
 //
-// The API key is an mt_pat_… or mt_svc_… token. Pass it explicitly, or pass ""
+// The API key is an mt_pat_… or mt_svc_… token, or an mt_test_… test key whose
+// sends are simulated rather than delivered. Pass it explicitly, or pass ""
 // to read MAILTEA_API_KEY from the environment. With neither, New returns a
 // *Error with Status 0 and Code "missing_api_key" — the misconfiguration is
 // reported where it happened rather than as a 401 on the first send.

@@ -4,6 +4,22 @@ All notable changes to the `github.com/mailtea-app/mailtea-go` module are
 documented here. The `v<version>` tag on this repository is the release —
 pkg.go.dev indexes the tag — and these sections become its release notes.
 
+## 0.4.0 (2026-09-15)
+
+- Added: `Email.Mode` — `"live"` for real mail, `"test"` for a message sent with
+  a test key (`mt_test_…`), which is validated, recorded and webhook-emitting but
+  never delivered. A `string` rather than a typed constant, so a mode added
+  server-side still decodes.
+- Added: test mode is reachable through the existing free-form params.
+  `APIKeys.Create(ctx, mailtea.Params{"name": "CI", "mode": "test"})` mints a
+  test key, and `Emails.List(ctx, mailtea.Params{"mode": "test"})` reads test
+  mail. There is no mixed view, and a test key is **not** a data sandbox — it
+  reads and writes your real contacts, templates, senders and webhooks. Only
+  delivery is simulated.
+- Reserved recipients on `test.mailtea.email` force an outcome: `delivered@`,
+  `bounced@`, `complained@`, `delayed@`, `failed@`. The first `To` recipient
+  decides; anything else is delivered.
+
 ## 0.3.0 (2026-09-10)
 
 - Added: `Domains.Update` with `tracking_subdomain` set to nil removes a

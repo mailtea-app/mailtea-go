@@ -86,6 +86,27 @@ func TestSendMergesExtraFields(t *testing.T) {
 	assertBodyField(t, request, "subject", "overridden")
 }
 
+// A template carries its own subject and sender, so a template send may leave
+// both out. An empty Subject must then not go out as "", which the API refuses.
+func TestSendWithATemplateOmitsAnUnsetSubjectAndFrom(t *testing.T) {
+	mock := startMockMailtea(t)
+	client := newTestClient(t, mock)
+
+	if _, err := client.Emails.Send(context.Background(), SendEmailRequest{
+		To:       []string{"reader@yourdomain.com"},
+		Template: &TemplateRef{ID: "etpl_1"},
+	}); err != nil {
+		t.Fatalf("Send: %v", err)
+	}
+
+	request := mock.last(t)
+	for _, key := range []string{"subject", "from", "sender_id"} {
+		if _, present := request.Body[key]; present {
+			t.Errorf("%s was sent when the caller left it unset", key)
+		}
+	}
+}
+
 func TestSendSchedulesWithScheduledAt(t *testing.T) {
 	mock := startMockMailtea(t)
 	client := newTestClient(t, mock)

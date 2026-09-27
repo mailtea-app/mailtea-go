@@ -15,9 +15,16 @@ type PostsService struct {
 // CreatePostRequest is the body of POST /v1/posts.
 //
 // Seed the post from a published server template with TemplateID + Variables,
-// or pass inline HTML. Kind selects the post type ("newsletter" or
-// "broadcast"). Set Send to deliver right after creating (or add ScheduledAt to
-// schedule) — that requires the `issues:send` scope.
+// using the template's PUBLISHED version, not any unpublished edits saved
+// since, or pass inline HTML. The Variables you pass are filled in, in both
+// the {{key}} and Visual Email Designer {key} forms, and HTML-escaped (use
+// {{{key}}} in the template for raw HTML). Everything else is left for the
+// broadcast to fill per recipient: a declared variable you do not pass keeps
+// its fallback_value for recipients with no value, and undeclared tokens like
+// {{contact.first_name}} stay as they are. The post keeps the template's
+// published page style. Kind selects the post type ("newsletter" or "broadcast"). Set
+// Send to deliver right after creating (or add ScheduledAt to schedule); that
+// requires the `issues:send` scope.
 type CreatePostRequest struct {
 	PublicationID string `json:"publication_id"`
 	Subject       string `json:"subject,omitempty"`

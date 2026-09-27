@@ -124,7 +124,7 @@ List endpoints return `*mailtea.List` (`Data []Object`, plus `Total`/`Limit`/
 | `Templates.Create / List / Get / Update / Delete` | Manage reusable email templates |
 | `Templates.Render(ctx, params)` | Render a spec to HTML without saving → `{html, text}` |
 | `Templates.Publish / Unpublish / Duplicate` | Template lifecycle |
-| `Templates.Versions / RestoreVersion` | Design history; restoring returns the template to **draft** |
+| `Templates.Versions / RestoreVersion` | Design history; a restore saves the older design as unpublished changes, and a published template keeps sending its published version until you `Publish` again |
 | `Domains.Create / List / Get / Verify / Update / Delete` | Manage sending domains |
 | `Domains.Tracking.Create / List / Verify / Delete` | CNAME tracking sub-domains under a domain |
 | `Webhooks.Create / List / Get / Update / Delete` | Manage outbound event subscriptions |

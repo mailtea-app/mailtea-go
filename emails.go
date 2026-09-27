@@ -42,9 +42,11 @@ type TemplateRef struct {
 //
 // Set the From with exactly one of From (a "Name <email>" string) or SenderID
 // (a named, verified publication sender, which also supplies its default
-// reply-to). Provide HTML/Text OR Template, never both.
+// reply-to). With a Template, both may be left empty: the publication's default
+// sender is used, then the template's own From. Provide HTML/Text OR Template,
+// never both.
 //
-// To, CC and BCC are capped at 50 recipients COMBINED — the provider refuses a
+// To, CC and BCC are capped at 50 recipients COMBINED. The provider refuses a
 // larger message, so the API rejects it rather than accepting a send that dies
 // downstream where you cannot see it.
 type SendEmailRequest struct {
@@ -53,8 +55,11 @@ type SendEmailRequest struct {
 	// SenderID selects a saved sender ("snd_…") instead of From.
 	SenderID string `json:"sender_id,omitempty"`
 
-	To      []string `json:"to"`
-	Subject string   `json:"subject"`
+	To []string `json:"to"`
+	// Subject is required unless Template is set: a template send may leave it
+	// empty, and the template's published subject is used. Its variables fill the
+	// subject the same way they fill the body.
+	Subject string `json:"subject,omitempty"`
 
 	HTML string `json:"html,omitempty"`
 	Text string `json:"text,omitempty"`

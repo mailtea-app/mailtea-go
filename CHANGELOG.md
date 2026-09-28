@@ -4,7 +4,7 @@ All notable changes to the `github.com/mailtea-app/mailtea-go` module are
 documented here. The `v<version>` tag on this repository is the release —
 pkg.go.dev indexes the tag — and these sections become its release notes.
 
-## Unreleased
+## 0.5.0 (2026-09-28)
 
 - Changed: `SendEmailRequest.Subject` is left out of the request when empty, so
   a send with a `Template` can omit it and the template's published subject is used.

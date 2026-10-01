@@ -4,7 +4,7 @@ All notable changes to the `github.com/mailtea-app/mailtea-go` module are
 documented here. The `v<version>` tag on this repository is the release —
 pkg.go.dev indexes the tag — and these sections become its release notes.
 
-## Unreleased
+## 0.7.0 (2026-10-01)
 
 - Docs: a domain claim takes an optional `purpose` (`email`, `site` or
   `both`, default `email`), and the domain the claim produces is created with

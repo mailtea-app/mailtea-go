@@ -118,8 +118,10 @@ type DomainClaimsService struct {
 	client *Client
 }
 
-// Create opens a claim. Takes publication_id, name, and an optional region.
-// The response's `records` lists the TXT record to publish.
+// Create opens a claim. Takes publication_id, name, and optional region and
+// purpose ("email", "site" or "both", default "email"): the domain the
+// claim produces is created with that purpose. The response's `records` lists
+// the TXT record to publish, and every claim response carries `purpose`.
 func (s *DomainClaimsService) Create(ctx context.Context, params Params) (Object, error) {
 	return s.client.object(ctx, http.MethodPost, "/v1/domains/claim", bodyOrNil(params))
 }

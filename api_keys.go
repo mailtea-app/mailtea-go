@@ -16,8 +16,10 @@ type APIKeysService struct {
 
 // Create mints an API key. The `token` is returned ONCE — store it securely.
 //
-// Takes name, optional permission ("full_access", "sending_access" or
-// "drafts_only", which writes drafts but can never send), and
+// Takes name, optional permission ("full_access", "sending_access",
+// "drafts_only", which writes drafts but can never send, or
+// "drafts_and_templates", which also builds and publishes templates and never
+// sends), and
 // optional domain_id.
 func (s *APIKeysService) Create(ctx context.Context, params Params) (Object, error) {
 	return s.client.object(ctx, http.MethodPost, "/v1/api-keys", bodyOrNil(params))
